@@ -1,6 +1,5 @@
 open Types
 let queue = ref([
-  {number: 0, time: "10:00AM"},
   {number: 1, time: "10:05AM"},
   {number: 2, time: "10:10AM"},
   {number: 3, time: "10:15AM"},
@@ -10,7 +9,7 @@ let queue = ref([
   {number: 7, time: "10:35AM"},
   {number: 8, time: "10:40AM"},
 ])
-let lastServed = ref(queue.contents->Js.Array2.pop)
+let lastServed = ref(queue.contents->Js.Array2.shift)
 let startPosition = {
   number: 1,
   time: Js.Date.make()->Js.Date.toLocaleTimeString,
@@ -24,5 +23,4 @@ let enterQueue = num => {
 
 let serveNext = () => {
   lastServed := queue.contents->Js.Array2.shift
-  queue
 }
