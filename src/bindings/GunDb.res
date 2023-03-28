@@ -1,17 +1,11 @@
 module Constants = {
-  let gunUrl = ["https://gun-manhattan.herokuapp.com/gun", "http://cashtokens.paper.cash:8765/gun"]
+  let _gunUrl = ["https://gun-manhattan.herokuapp.com/gun", "http://cashtokens.paper.cash:8765/gun"]
+  let gunUrl = []
   let storesLabel = "stores"
 }
-module Types = {
-  type name = string
-  type email = string
-  type storeId = string
-  type timestamp = string
-  type propertyLabel = string
-  type status = [#waiting]
+type status = [#waiting]
 
-  let nullT = Js.Nullable.null
-}
+let nullT = Js.Nullable.null
 open Types
 open Constants
 
@@ -35,22 +29,28 @@ module Sea = {
 }
 
 module Gun = {
-  type gun
+  type t
   type gunOpts = {peers: array<string>}
   type storageObj<'t> = 't
   type callback<'a> = 'a => unit
-  @module("gun") external gun: gunOpts => gun = "default"
-  @module("gun/lib/unset.js") external unset_: gun = "default"
-  let _ = unset_
-  @send external get: (gun, propertyLabel) => gun = "get"
-  @send external getWithCallback: (gun, propertyLabel, callback<'a>) => gun = "get"
-  @send external put: (gun, storageObj<'a>) => promise<unit> = "put"
-  @send external putWithCallback: (gun, storageObj<'a>, callback<'a>) => Js.Promise.t<unit> = "put"
-  @send external once: (gun, unit) => promise<'a> = "once"
-  @send external onceWithCallback: (gun, callback<'a>) => promise<'a> = "once"
-  @send external on: (gun, callback<'a>) => promise<'a> = "on"
-  @send external unset: (gun, gun) => promise<unit> = "unset"
-  @send external set: (gun, storageObj<'a>) => promise<unit> = "set"
+  type callback2<'a, 'b> = ('a, 'b) => unit
+  type callback3<'a, 'b, 'c> = ('a, 'b, 'c) => unit
+  type subscriber = {off: unit => unit}
+  @module("gun") external gun: gunOpts => t = "default"
+  // @module("gun/lib/unset.js") external unset_: gun = "default"
+  // let _ = unset_
+  @send external get: (t, propertyLabel) => t = "get"
+  @send external getWithCallback: (t, propertyLabel, callback<'a>) => t = "get"
+  @send external put: (t, storageObj<'a>) => promise<unit> = "put"
+  @send external putWithCallback: (t, storageObj<'a>, callback<'a>) => Js.Promise.t<unit> = "put"
+  @send external once: (t, unit) => promise<'a> = "once"
+  @send external onceWithCallback: (t, callback<'a>) => promise<'a> = "once"
+  @send external onceWithKey: (t, callback2<'a, 'b>) => subscriber = "once"
+  @send external on: (t, callback<'a>) => subscriber = "on"
+  @send external onWithKey: (t, callback2<'a, 'b>) => subscriber = "on"
+  @send external unset: (t, t) => promise<unit> = "unset"
+  @send external set: (t, storageObj<'a>) => promise<unit> = "set"
+  @send external map: (t, unit) => t = "map"
 }
 
 type queuePosition = {
@@ -125,4 +125,3 @@ let main = async () => {
   let queuePositionId = await enterQueue("John", storeId)
   Js.log2("User entered queue with position ID:", queuePositionId)
 }
-let _ = main()
